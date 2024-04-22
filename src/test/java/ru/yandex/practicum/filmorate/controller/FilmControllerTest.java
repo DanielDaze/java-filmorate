@@ -6,12 +6,6 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.io.IOException;
@@ -26,10 +20,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class FilmControllerTest {
-    @Autowired
-    TestRestTemplate restTemplate;
     HttpClient client = HttpClient.newHttpClient();
     Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter())
@@ -44,13 +35,6 @@ class FilmControllerTest {
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Test
-    public void test() {
-        restTemplate = new TestRestTemplate();
-        HttpEntity<String> request = new HttpEntity<>("{\"name\":\"name\",\"description\":\"desc\",\"duration\":7200,\"releaseDate\":\"2021-10-10\"}");
-        ResponseEntity<String> response = restTemplate.exchange(URL, HttpMethod.GET, request, String.class);
     }
 
     @Test
