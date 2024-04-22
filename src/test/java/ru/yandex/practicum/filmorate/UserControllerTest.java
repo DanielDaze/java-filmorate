@@ -29,8 +29,14 @@ public class UserControllerTest {
             .registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter())
             .create();
     Type userListType = new TypeToken<ArrayList<User>>(){}.getType();
-    URI URL = new URI("http://localhost:8080/users");
-    UserControllerTest() throws URISyntaxException {
+    static final URI URL;
+
+    static {
+        try {
+            URL = new URI("http://localhost:8080/users");
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test

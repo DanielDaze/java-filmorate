@@ -29,8 +29,14 @@ class FilmControllerTest {
             .registerTypeAdapter(Duration.class, new DurationTypeAdapter())
             .create();
     Type filmListType = new TypeToken<ArrayList<Film>>(){}.getType();
-    URI URL = new URI("http://localhost:8080/films");
-    FilmControllerTest() throws URISyntaxException {
+    static final URI URL;
+
+    static {
+        try {
+            URL = new URI("http://localhost:8080/films");
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
