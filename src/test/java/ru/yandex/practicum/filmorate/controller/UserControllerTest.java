@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate;
+package ru.yandex.practicum.filmorate.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -8,7 +8,6 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.io.IOException;
@@ -22,8 +21,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-@SpringBootTest
-public class UserControllerTest {
+class UserControllerTest {
     HttpClient client = HttpClient.newHttpClient();
     Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter())
@@ -37,10 +35,6 @@ public class UserControllerTest {
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Test
-    void contextLoads() {
     }
 
     @Test
