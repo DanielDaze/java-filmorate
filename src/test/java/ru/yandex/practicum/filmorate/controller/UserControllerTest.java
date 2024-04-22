@@ -6,25 +6,38 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-@SpringBootTest
+@AutoConfigureMockMvc
+@ContextConfiguration(classes = {UserControllerTest.class})
+@WebMvcTest(controllers = UserController.class)
+@Import(UserController.class)
+@ExtendWith(SpringExtension.class)
 class UserControllerTest {
-    HttpClient client = HttpClient.newHttpClient();
+    @Autowired
+    private MockMvc mockMvc;
     Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter())
             .create();
@@ -40,7 +53,7 @@ class UserControllerTest {
     }
 
     @Test
-    void getPostAndPutTest() throws IOException, InterruptedException {
+    void getPostAndPutTest() throws Exception {
         User expectedUser = User.builder()
                 .id(1)
                 .name("name")
@@ -49,19 +62,13 @@ class UserControllerTest {
                 .birthday(LocalDate.of(1999, 8, 8))
                 .build();
         String postBody = gson.toJson(expectedUser);
-        HttpRequest postRequest = HttpRequest.newBuilder()
-                .POST(HttpRequest.BodyPublishers.ofString(postBody))
-                .setHeader("Content-Type", "application/json")
-                .uri(URL)
-                .build();
-        client.send(postRequest, HttpResponse.BodyHandlers.ofString());
+        mockMvc.perform(MockMvcRequestBuilders.post(URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(postBody))
+                .andReturn();
 
-        HttpRequest getRequest = HttpRequest.newBuilder()
-                .GET()
-                .uri(URL)
-                .build();
-        HttpResponse<String> getResponse = client.send(getRequest, HttpResponse.BodyHandlers.ofString());
-        ArrayList<User> users = gson.fromJson(getResponse.body(), userListType);
+        MvcResult getResult = mockMvc.perform(MockMvcRequestBuilders.get(URL)).andReturn();
+        ArrayList<User> users = gson.fromJson(getResult.getResponse().getContentAsString(), userListType);
         Assertions.assertEquals(expectedUser, users.getFirst());
 
         User expectedUpdatedUser = User.builder()
@@ -72,18 +79,16 @@ class UserControllerTest {
                 .birthday(LocalDate.of(2000, 1, 1))
                 .build();
         String updatedBody = gson.toJson(expectedUpdatedUser);
-        HttpRequest putRequest = HttpRequest.newBuilder()
-                .PUT(HttpRequest.BodyPublishers.ofString(updatedBody))
-                .setHeader("Content-Type", "application/json")
-                .uri(URL)
-                .build();
-        HttpResponse<String> putResponse = client.send(putRequest, HttpResponse.BodyHandlers.ofString());
-        User updatedUser = gson.fromJson(putResponse.body(), User.class);
+        MvcResult putResult = mockMvc.perform(MockMvcRequestBuilders.put(URL)
+                 .contentType(MediaType.APPLICATION_JSON)
+                 .content(updatedBody))
+                 .andReturn();
+        User updatedUser = gson.fromJson(putResult.getResponse().getContentAsString(), User.class);
         Assertions.assertEquals(expectedUpdatedUser, updatedUser);
     }
 
     @Test
-    void wrongEmailTest() throws IOException, InterruptedException {
+    void wrongEmailTest() throws Exception {
         User user = User.builder()
                 .name("name")
                 .email("yandex.ru")
@@ -91,13 +96,12 @@ class UserControllerTest {
                 .birthday(LocalDate.of(1999, 8, 8))
                 .build();
         String postBody = gson.toJson(user);
-        HttpRequest postRequest = HttpRequest.newBuilder()
-                .POST(HttpRequest.BodyPublishers.ofString(postBody))
-                .setHeader("Content-Type", "application/json")
-                .uri(URL)
-                .build();
-        HttpResponse<String> postResponse = client.send(postRequest, HttpResponse.BodyHandlers.ofString());
-        Assertions.assertEquals(400, postResponse.statusCode());
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders
+                        .post(URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(postBody))
+                .andReturn();
+        Assertions.assertEquals(400, result.getResponse().getStatus());
 
         User userTwo = User.builder()
                 .name("name")
@@ -105,17 +109,16 @@ class UserControllerTest {
                 .birthday(LocalDate.of(1999, 8, 8))
                 .build();
         String postBodyTwo = gson.toJson(userTwo);
-        HttpRequest postRequestTwo = HttpRequest.newBuilder()
-                .POST(HttpRequest.BodyPublishers.ofString(postBodyTwo))
-                .setHeader("Content-Type", "application/json")
-                .uri(URL)
-                .build();
-        HttpResponse<String> postResponseTwo = client.send(postRequestTwo, HttpResponse.BodyHandlers.ofString());
-        Assertions.assertEquals(400, postResponseTwo.statusCode());
+        MvcResult resultTwo = mockMvc.perform(MockMvcRequestBuilders
+                        .post(URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(postBody))
+                .andReturn();
+        Assertions.assertEquals(400, resultTwo.getResponse().getStatus());
     }
 
     @Test
-    void wrongLoginTest() throws IOException, InterruptedException {
+    void wrongLoginTest() throws Exception {
         User user = User.builder()
                 .name("name")
                 .email("name@yandex.ru")
@@ -123,30 +126,27 @@ class UserControllerTest {
                 .birthday(LocalDate.of(1999, 8, 8))
                 .build();
         String postBody = gson.toJson(user);
-        HttpRequest postRequest = HttpRequest.newBuilder()
-                .POST(HttpRequest.BodyPublishers.ofString(postBody))
-                .setHeader("Content-Type", "application/json")
-                .uri(URL)
-                .build();
-        HttpResponse<String> postResponse = client.send(postRequest, HttpResponse.BodyHandlers.ofString());
-        Assertions.assertEquals(500, postResponse.statusCode());
+        Assertions.assertThrows(ServletException.class, () -> mockMvc.perform(MockMvcRequestBuilders
+                        .post(URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(postBody))
+                .andReturn());
 
         User userTwo = User.builder()
                 .name("name")
                 .birthday(LocalDate.of(1999, 8, 8))
                 .build();
         String postBodyTwo = gson.toJson(userTwo);
-        HttpRequest postRequestTwo = HttpRequest.newBuilder()
-                .POST(HttpRequest.BodyPublishers.ofString(postBodyTwo))
-                .setHeader("Content-Type", "application/json")
-                .uri(URL)
-                .build();
-        HttpResponse<String> postResponseTwo = client.send(postRequestTwo, HttpResponse.BodyHandlers.ofString());
-        Assertions.assertEquals(400, postResponseTwo.statusCode());
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders
+                        .post(URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(postBodyTwo))
+                .andReturn();
+        Assertions.assertEquals(400, result.getResponse().getStatus());
     }
 
     @Test
-    void wrongBirthdayTest() throws IOException, InterruptedException {
+    void wrongBirthdayTest() throws Exception {
         User user = User.builder()
                 .name("name")
                 .email("name@yandex.ru")
@@ -154,13 +154,12 @@ class UserControllerTest {
                 .birthday(LocalDate.of(2300, 8, 8))
                 .build();
         String postBody = gson.toJson(user);
-        HttpRequest postRequest = HttpRequest.newBuilder()
-                .POST(HttpRequest.BodyPublishers.ofString(postBody))
-                .setHeader("Content-Type", "application/json")
-                .uri(URL)
-                .build();
-        HttpResponse<String> postResponse = client.send(postRequest, HttpResponse.BodyHandlers.ofString());
-        Assertions.assertEquals(400, postResponse.statusCode());
+        MvcResult result =  mockMvc.perform(MockMvcRequestBuilders
+                        .post(URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(postBody))
+                .andReturn();
+        Assertions.assertEquals(400, result.getResponse().getStatus());
     }
 
     private static class LocalDateTypeAdapter extends TypeAdapter<LocalDate> {
