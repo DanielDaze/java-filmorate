@@ -6,7 +6,6 @@ import jakarta.validation.constraints.PastOrPresent;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.Duration;
 import java.time.LocalDate;
 
 /**
@@ -25,5 +24,5 @@ public class Film {
     @PastOrPresent
     LocalDate releaseDate;
 
-    Duration duration;
+    int duration;
 }

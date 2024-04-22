@@ -41,7 +41,7 @@ public class FilmController {
             log.info("{}: {}", LOG_ERROR, message);
             throw new ValidationException(message);
         }
-        if (film.getDuration().isNegative()) {
+        if (film.getDuration() <= 0) {
             String message = "Продолжительность фильма должна быть положительным числом";
             log.info("{}: {}", LOG_ERROR, message);
             throw new ValidationException(message);
@@ -73,7 +73,7 @@ public class FilmController {
         if (film.getDescription() == null) {
             film.setDescription(oldFIlm.getDescription());
         }
-        if (film.getDuration() == null) {
+        if (film.getDuration() == 0) {
             film.setDuration(oldFIlm.getDuration());
         }
         if (film.getReleaseDate() == null) {

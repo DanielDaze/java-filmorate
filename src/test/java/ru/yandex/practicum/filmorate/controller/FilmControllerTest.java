@@ -58,10 +58,10 @@ class FilmControllerTest {
                 .id(1)
                 .name("name")
                 .description("desc")
-                .duration(Duration.ofSeconds(7200))
+                .duration(120)
                 .releaseDate(LocalDate.of(2021,10,10))
                 .build();
-        String postBody = "{\"name\":\"name\",\"description\":\"desc\",\"duration\":7200,\"releaseDate\":\"2021-10-10\"}";
+        String postBody = "{\"name\":\"name\",\"description\":\"desc\",\"duration\":120,\"releaseDate\":\"2021-10-10\"}";
         mockMvc.perform(MockMvcRequestBuilders
                         .post(URL)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -74,12 +74,12 @@ class FilmControllerTest {
         ArrayList<Film> films = gson.fromJson(getResult.getResponse().getContentAsString(), filmListType);
         Assertions.assertEquals(expectedFilm, films.getFirst());
 
-        String updatedBody = "{\"id\":1,\"name\":\"upd_name\",\"description\":\"new_desc\",\"duration\":6000,\"releaseDate\":\"2008-06-10\"}";
+        String updatedBody = "{\"id\":1,\"name\":\"upd_name\",\"description\":\"new_desc\",\"duration\":210,\"releaseDate\":\"2008-06-10\"}";
         Film expectedUpdatedFilm = Film.builder()
                 .name("upd_name")
                 .id(1)
                 .description("new_desc")
-                .duration(Duration.ofSeconds(6000))
+                .duration(210)
                 .releaseDate(LocalDate.of(2008, 6, 10))
                 .build();
         MvcResult putResult = mockMvc.perform(MockMvcRequestBuilders.put(URL)
