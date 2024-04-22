@@ -60,7 +60,6 @@ public class UserControllerTest {
                 .build();
         HttpResponse<String> getResponse = client.send(getRequest, HttpResponse.BodyHandlers.ofString());
         ArrayList<User> users = gson.fromJson(getResponse.body(), userListType);
-        System.out.println(users);
         Assertions.assertEquals(expectedUser, users.getFirst());
 
         User expectedUpdatedUser = User.builder()
@@ -96,7 +95,7 @@ public class UserControllerTest {
                 .uri(URL)
                 .build();
         HttpResponse<String> postResponse = client.send(postRequest, HttpResponse.BodyHandlers.ofString());
-        Assertions.assertEquals(500, postResponse.statusCode());
+        Assertions.assertEquals(400, postResponse.statusCode());
 
         User userTwo = User.builder()
                 .name("name")
@@ -110,7 +109,7 @@ public class UserControllerTest {
                 .uri(URL)
                 .build();
         HttpResponse<String> postResponseTwo = client.send(postRequestTwo, HttpResponse.BodyHandlers.ofString());
-        Assertions.assertEquals(500, postResponseTwo.statusCode());
+        Assertions.assertEquals(400, postResponseTwo.statusCode());
     }
 
     @Test
@@ -141,7 +140,7 @@ public class UserControllerTest {
                 .uri(URL)
                 .build();
         HttpResponse<String> postResponseTwo = client.send(postRequestTwo, HttpResponse.BodyHandlers.ofString());
-        Assertions.assertEquals(500, postResponseTwo.statusCode());
+        Assertions.assertEquals(400, postResponseTwo.statusCode());
     }
 
     @Test
@@ -159,7 +158,7 @@ public class UserControllerTest {
                 .uri(URL)
                 .build();
         HttpResponse<String> postResponse = client.send(postRequest, HttpResponse.BodyHandlers.ofString());
-        Assertions.assertEquals(500, postResponse.statusCode());
+        Assertions.assertEquals(400, postResponse.statusCode());
     }
 
     private static class LocalDateTypeAdapter extends TypeAdapter<LocalDate> {

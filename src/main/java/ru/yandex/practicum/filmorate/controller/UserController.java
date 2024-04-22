@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -27,19 +28,9 @@ public class UserController {
     }
 
     @PostMapping
-    public User add(@RequestBody User user) {
-        if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
-            String message = "Адрес электронной почты введен неверно";
-            log.info("{}: {}", LOG_ERROR, message);
-            throw new ValidationException(message);
-        }
-        if (user.getLogin() == null || user.getLogin().isBlank() || user.getLogin().contains(" ")) {
+    public User add(@Valid @RequestBody User user) {
+        if (user.getLogin().contains(" ")) {
             String message = "Логин не может быть пустым или содержать пробелы";
-            log.info("{}: {}", LOG_ERROR, message);
-            throw new ValidationException(message);
-        }
-        if (user.getBirthday().isAfter(LocalDate.ofInstant(Instant.now(), ZoneId.systemDefault()))) {
-            String message = "Дата рождения не может быть в будущем";
             log.info("{}: {}", LOG_ERROR, message);
             throw new ValidationException(message);
         }
@@ -53,7 +44,7 @@ public class UserController {
     }
 
     @PutMapping
-    public User update(@RequestBody User user) {
+    public User update(@Valid @RequestBody User user) {
         if (user.getId() == 0) {
             String message = "Введите свой id";
             log.info("{}: {}", LOG_ERROR, message);

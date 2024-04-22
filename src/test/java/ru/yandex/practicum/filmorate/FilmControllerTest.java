@@ -89,7 +89,7 @@ class FilmControllerTest {
                 .uri(URL)
                 .build();
         HttpResponse<String> response = client.send(postRequest, HttpResponse.BodyHandlers.ofString());
-        Assertions.assertEquals(500, response.statusCode());
+        Assertions.assertEquals(400, response.statusCode());
     }
 
     @Test

@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -26,14 +27,9 @@ public class FilmController {
     }
 
     @PostMapping
-    public Film add(@RequestBody Film film) {
+    public Film add(@Valid @RequestBody Film film) {
         if (film.getId() != 0) {
             throw new ValidationException("Если вы хотите обновить фильм, воспользуйтесь методом PUT");
-        }
-        if (film.getName() == null || film.getName().isBlank()) {
-            String message = "Название не должно быть пустым";
-            log.info("{}: {}", LOG_ERROR, message);
-            throw new ValidationException(message);
         }
         if (film.getDescription().length() > 200) {
             String message = "Описание не должно содержать более 200 символов";
@@ -57,7 +53,7 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film update(@RequestBody Film film) {
+    public Film update(@Valid @RequestBody Film film) {
         if (film.getId() == 0) {
             String message = "Введите id фильма, который вы хотите обновить";
             log.info("{}: {}", LOG_ERROR, message);
