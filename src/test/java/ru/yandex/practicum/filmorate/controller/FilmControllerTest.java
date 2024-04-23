@@ -4,7 +4,6 @@ import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,7 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.film.Film;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -101,7 +100,7 @@ class FilmControllerTest {
     }
 
     @Test
-    void wrongDescriptionTest() {
+    void wrongDescriptionTest() throws Exception {
         String wrongFilm = "{\"name\":\"upd_name\",\"description\":\"tellus sem mollis dui, in sodales elit erat vitae risus. " +
                 "Duis a mi fringilla mi lacinia mattis. Integer eu lacus. Quisque imperdiet, erat nonummy ultricies ornare, " +
                 "elit elit fermentum risus, at fringilla purus mauris a nunc. In at pede. Cras vulputate velit eu sem. " +
@@ -112,41 +111,45 @@ class FilmControllerTest {
                 "Duis volutpat nunc sit amet metus. Aliquam erat volutpat. Nulla facilisis. Suspendisse commodo tincidunt nibh. Phasellus nulla. " +
                 "Integer vulputate, risus a ultricies adipiscing, enim mi tempor lorem, eget mollis\"," +
                 "\"duration\":6000,\"releaseDate\":\"2008-06-10\"}";
-        Assertions.assertThrows(ServletException.class, () -> mockMvc.perform(MockMvcRequestBuilders
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders
                         .post(URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(wrongFilm))
-                .andReturn());
+                .andReturn();
+        Assertions.assertEquals(400, result.getResponse().getStatus());
     }
 
     @Test
-    void wrongReleaseDateTest() {
+    void wrongReleaseDateTest() throws Exception {
         String wrongFilm = "{\"id\":1,\"name\":\"upd_name\",\"description\":\"new_desc\",\"duration\":6000,\"releaseDate\":\"1894-12-28\"}";
-        Assertions.assertThrows(ServletException.class, () -> mockMvc.perform(MockMvcRequestBuilders
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders
                         .post(URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(wrongFilm))
-                .andReturn());
+                .andReturn();
+        Assertions.assertEquals(400, result.getResponse().getStatus());
     }
 
     @Test
-    void wrongDuration() {
+    void wrongDuration() throws Exception {
         String wrongFilm = "{\"id\":1,\"name\":\"upd_name\",\"description\":\"new_desc\",\"duration\":-1,\"releaseDate\":\"1894-12-28\"}";
-        Assertions.assertThrows(ServletException.class, () -> mockMvc.perform(MockMvcRequestBuilders
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders
                         .post(URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(wrongFilm))
-                .andReturn());
+                .andReturn();
+        Assertions.assertEquals(400, result.getResponse().getStatus());
     }
 
     @Test
-    void filmNotFoundTest() {
+    void filmNotFoundTest() throws Exception {
         String wrongFilm = "{\"id\":999,\"name\":\"upd_name\",\"description\":\"new_desc\",\"duration\":6000,\"releaseDate\":\"1894-12-28\"}";
-        Assertions.assertThrows(ServletException.class, () -> mockMvc.perform(MockMvcRequestBuilders
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders
                         .post(URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(wrongFilm))
-                .andReturn());
+                .andReturn();
+        Assertions.assertEquals(400, result.getResponse().getStatus());
     }
 
     private static class LocalDateTypeAdapter extends TypeAdapter<LocalDate> {

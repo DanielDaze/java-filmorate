@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.model;
+package ru.yandex.practicum.filmorate.model.user;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -15,19 +15,18 @@ import java.time.LocalDate;
 @Data
 @Builder
 public class User {
-    int id;
+    private int id;
 
     @NotNull
     @NotBlank
     @Email
-    String email;
+    private String email;
 
-    @NotNull
-    @NotBlank
-    String login;
+    @IsValidLogin
+    private String login;
 
-    String name;
+    private String name;
 
     @PastOrPresent
-    LocalDate birthday;
+    private LocalDate birthday;
 }

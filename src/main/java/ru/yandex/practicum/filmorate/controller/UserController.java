@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.user.User;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -17,7 +17,7 @@ import java.util.Map;
 public class UserController {
     private final Map<Integer, User> users = new HashMap<>();
     private int idCount = 0;
-    private static final String LOG_ERROR = "User Input Error:";
+    private static final String LOG_ERROR = "User Input Error";
 
     @GetMapping
     public Collection<User> findAll() {
@@ -26,11 +26,6 @@ public class UserController {
 
     @PostMapping
     public User add(@Valid @RequestBody User user) {
-        if (user.getLogin().contains(" ")) {
-            String message = "Логин не может быть пустым или содержать пробелы";
-            log.info("{}: {}", LOG_ERROR, message);
-            throw new ValidationException(message);
-        }
         if (user.getName() == null) {
             user.setName(user.getLogin());
         }

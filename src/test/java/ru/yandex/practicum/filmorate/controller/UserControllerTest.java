@@ -6,7 +6,6 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,7 +19,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.user.User;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -126,23 +125,24 @@ class UserControllerTest {
                 .birthday(LocalDate.of(1999, 8, 8))
                 .build();
         String postBody = gson.toJson(user);
-        Assertions.assertThrows(ServletException.class, () -> mockMvc.perform(MockMvcRequestBuilders
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders
                         .post(URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(postBody))
-                .andReturn());
+                .andReturn();
+        Assertions.assertEquals(400, result.getResponse().getStatus());
 
         User userTwo = User.builder()
                 .name("name")
                 .birthday(LocalDate.of(1999, 8, 8))
                 .build();
         String postBodyTwo = gson.toJson(userTwo);
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders
+        MvcResult resultTwo = mockMvc.perform(MockMvcRequestBuilders
                         .post(URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(postBodyTwo))
                 .andReturn();
-        Assertions.assertEquals(400, result.getResponse().getStatus());
+        Assertions.assertEquals(400, resultTwo.getResponse().getStatus());
     }
 
     @Test
