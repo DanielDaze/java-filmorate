@@ -16,7 +16,6 @@ public class InMemoryUserStorage implements UserStorage {
     private int idCount = 0;
     private static final String INPUT_ERROR = "User Input Error";
 
-
     @Override
     public Collection<User> findAll() {
         return users.values();

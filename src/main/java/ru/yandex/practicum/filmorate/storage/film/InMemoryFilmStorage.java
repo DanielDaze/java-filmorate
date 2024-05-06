@@ -24,6 +24,11 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film find(long id) {
+        if (!films.containsKey(id)) {
+            String message = "Фильм c id" + id + " не найден";
+            log.info("{}: {}", INPUT_ERROR, message);
+            throw new NotFoundException(message);
+        }
         return films.get(id);
     }
 
@@ -46,7 +51,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             throw new NotFoundException(message);
         }
         if (!films.containsKey(film.getId())) {
-            String message = "Фильм с таким id не найден";
+            String message = "Фильм c id" + film.getId() + " не найден";
             log.info("{}: {}", INPUT_ERROR, message);
             throw new NotFoundException(message);
         }
