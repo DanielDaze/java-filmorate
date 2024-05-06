@@ -19,6 +19,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Collection<Film> findAll() {
+        log.info("Выполняется возврат списка всех фильмов");
         return films.values();
     }
 
@@ -29,6 +30,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             log.info("{}: {}", INPUT_ERROR, message);
             throw new NotFoundException(message);
         }
+        log.info("Фильм с id {} найден", id);
         return films.get(id);
     }
 
@@ -40,6 +42,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
         film.setId(++idCount);
         films.put(film.getId(), film);
+        log.info("Фильм {} добавлен", film);
         return film;
     }
 
@@ -72,6 +75,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
 
         films.put(film.getId(), film);
+        log.info("Фильм с id {} обновлен: {}", film.getId(), film);
         return film;
     }
 }

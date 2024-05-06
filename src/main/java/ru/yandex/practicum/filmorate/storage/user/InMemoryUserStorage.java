@@ -18,12 +18,14 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public Collection<User> findAll() {
+        log.info("Выполняется возврат списка всех пользователей");
         return users.values();
     }
 
     @Override
     public User find(long id) {
         if (users.containsKey(id)) {
+            log.info("Пользователь с id {} найден", id);
             return users.get(id);
         } else {
             String message = "Пользователь с id " + id + " не найден";
@@ -40,6 +42,7 @@ public class InMemoryUserStorage implements UserStorage {
 
         user.setId(++idCount);
         users.put(user.getId(), user);
+        log.info("Пользователь {} добавлен", user.getLogin());
         return user;
     }
 
@@ -70,6 +73,7 @@ public class InMemoryUserStorage implements UserStorage {
         }
 
         users.put(user.getId(), user);
+        log.info("Пользователь с id {} обновлен: {}", user.getId(), user);
         return user;
     }
 }

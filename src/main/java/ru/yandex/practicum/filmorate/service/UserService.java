@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.user.User;
@@ -9,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Service
+@Slf4j
 public class UserService {
     private final UserStorage storage;
 
@@ -41,6 +43,7 @@ public class UserService {
 
         update(user);
         update(friend);
+        log.info("Пользователь {} добавил в друзья пользователя {}", user.getLogin(), friend.getLogin());
         return user;
     }
 
@@ -52,6 +55,7 @@ public class UserService {
 
         update(user);
         update(friend);
+        log.info("Пользователь {} удалил из друзей пользователя {}", user.getLogin(), friend.getLogin());
         return user;
     }
 
@@ -59,6 +63,7 @@ public class UserService {
         User neededUser = find(id);
         Collection<User> users = findAll();
         Collection<User> friends = users.stream().filter(curUser -> curUser.getFriends().contains(id)).toList();
+        log.info("Выполняется возврат списка друзей пользователя {}", neededUser.getLogin());
         return friends;
     }
 
@@ -68,6 +73,7 @@ public class UserService {
         User otherUser = find(otherId);
         List<Long> mutualIds = user.getFriends().stream().filter(otherUser.getFriends()::contains).toList();
         Collection<User> mutualFriends = users.stream().filter(curUser -> mutualIds.contains(curUser.getId())).toList();
+        log.info("Выполняется возврат общих друзей пользователей {} и {}", user.getLogin(), otherUser.getLogin());
         return mutualFriends;
     }
 }
