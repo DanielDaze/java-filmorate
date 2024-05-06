@@ -18,6 +18,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.yandex.practicum.filmorate.model.film.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -29,7 +32,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 @AutoConfigureMockMvc
-@ContextConfiguration(classes = {FilmControllerTest.class})
+@ContextConfiguration(classes = {FilmControllerTest.class, FilmController.class, FilmService.class, FilmStorage.class, InMemoryFilmStorage.class})
 @WebMvcTest(controllers = FilmController.class)
 @Import(FilmController.class)
 @ExtendWith(SpringExtension.class)
