@@ -27,7 +27,7 @@ public class InMemoryUserStorage implements UserStorage {
             return users.get(id);
         } else {
             String message = "Пользователь с id " + id + " не найден";
-            log.info("{}: {}", INPUT_ERROR, message);
+            log.error("{}: {}", INPUT_ERROR, message);
             throw new NotFoundException(message);
         }
     }
@@ -47,7 +47,7 @@ public class InMemoryUserStorage implements UserStorage {
     public User update(User user) {
         if (!users.containsKey(user.getId())) {
             String message = "Пользователь с id " + user.getId() + " не найден";
-            log.info("{}: {}", INPUT_ERROR, message);
+            log.error("{}: {}", INPUT_ERROR, message);
             throw new NotFoundException(message);
         }
 
