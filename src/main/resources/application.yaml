@@ -1,0 +1,5 @@
+filmorate:
+  error-message:
+    input-error: "User Input Error"
+
+logging.level.org.zalando.logbook: TRACE

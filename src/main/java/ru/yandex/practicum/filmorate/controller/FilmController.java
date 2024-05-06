@@ -1,69 +1,56 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
+import jakarta.validation.constraints.Positive;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.WrongMethodException;
 import ru.yandex.practicum.filmorate.model.film.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/films")
-@Slf4j
 public class FilmController {
-    private int idCount = 0;
-    private static final String LOG_ERROR = "User Input Error";
-    private final Map<Integer, Film> films = new HashMap<>();
+    private final FilmService service;
+
+    @Autowired
+    public FilmController(FilmService service) {
+        this.service = service;
+    }
 
     @GetMapping
     public Collection<Film> findAll() {
-            return films.values();
+        return service.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public Film find(@Positive @PathVariable long id) {
+        return service.find(id);
     }
 
     @PostMapping
-    public Film add(@Valid @RequestBody Film film) throws WrongMethodException {
-        if (film.getId() != 0) {
-            throw new WrongMethodException("Если вы хотите обновить фильм, воспользуйтесь методом PUT");
-        }
-
-        film.setId(++idCount);
-        films.put(film.getId(), film);
-        return film;
+    public Film add(@Valid @RequestBody Film film) {
+        return service.add(film);
     }
 
     @PutMapping
-    public Film update(@Valid @RequestBody Film film) throws NotFoundException {
-        if (film.getId() == 0) {
-            String message = "Введите id фильма, который вы хотите обновить";
-            log.info("{}: {}", LOG_ERROR, message);
-            throw new NotFoundException(message);
-        }
-        if (!films.containsKey(film.getId())) {
-            String message = "Фильм с таким id не найден";
-            log.info("{}: {}", LOG_ERROR, message);
-            throw new NotFoundException(message);
-        }
+    public Film update(@Valid @RequestBody Film film) {
+        return service.update(film);
+    }
 
-        Film oldFIlm = films.get(film.getId());
+    @PutMapping("/{id}/like/{userId}")
+    public Film like(@Positive @PathVariable long id, @Positive @PathVariable long userId) {
+        return service.like(id, userId);
+    }
 
-        if (film.getName() == null) {
-            film.setName(oldFIlm.getName());
-        }
-        if (film.getDescription() == null) {
-            film.setDescription(oldFIlm.getDescription());
-        }
-        if (film.getDuration() == 0) {
-            film.setDuration(oldFIlm.getDuration());
-        }
-        if (film.getReleaseDate() == null) {
-            film.setReleaseDate(oldFIlm.getReleaseDate());
-        }
+    @DeleteMapping("/{id}/like/{userId}")
+    public Film removeLike(@Positive @PathVariable long id, @Positive @PathVariable long userId) {
+        return service.removeLike(id, userId);
+    }
 
-        films.put(film.getId(), film);
-        return film;
+    @GetMapping("/popular")
+    public Collection<Film> findPopular(@RequestParam(defaultValue = "10") final Integer count) {
+        return service.findPopular(count);
     }
 }
