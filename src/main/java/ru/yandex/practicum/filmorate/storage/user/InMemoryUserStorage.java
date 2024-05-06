@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.user.User;
@@ -15,8 +14,8 @@ import java.util.Map;
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Long, User> users = new HashMap<>();
     private int idCount = 0;
-    @Value("${filmorate.error-message.input-error}")
-    private String INPUT_ERROR;
+    private static final String INPUT_ERROR = "User Input Error";
+
 
     @Override
     public Collection<User> findAll() {

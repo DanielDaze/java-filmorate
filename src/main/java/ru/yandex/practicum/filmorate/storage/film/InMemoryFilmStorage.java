@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.WrongMethodException;
@@ -15,8 +14,7 @@ import java.util.Map;
 @Slf4j
 public class InMemoryFilmStorage implements FilmStorage {
     private int idCount = 0;
-    @Value("${filmorate.error-message.input-error}")
-    private String INPUT_ERROR;
+    private static final String INPUT_ERROR = "User Input Error";
     private final Map<Long, Film> films = new HashMap<>();
 
     @Override
