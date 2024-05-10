@@ -8,14 +8,15 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * User.
  */
 @Data
-@Builder
 public class User {
-    private int id;
+    private long id;
 
     @NotNull
     @NotBlank
@@ -29,4 +30,15 @@ public class User {
 
     @PastOrPresent
     private LocalDate birthday;
+
+    private Set<Long> friends = new HashSet<>();
+
+    @Builder
+    public User(long id, LocalDate birthday, String name, String login, String email) {
+        this.id = id;
+        this.birthday = birthday;
+        this.name = name;
+        this.login = login;
+        this.email = email;
+    }
 }
