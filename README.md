@@ -1,7 +1,8 @@
-![ER-диаграмма приложения Filmorate](https://github.com/DanielDaze/java-filmorate/assets/154620484/042957ec-6de8-4946-8ca8-f0212490b3c3)
+![ER-диаграмма приложения Filmorate]([https://github.com/DanielDaze/java-filmorate/assets/154620484/042957ec-6de8-4946-8ca8-f0212490b3c3](https://github.com/DanielDaze/java-filmorate/assets/154620484/aae84cb9-10b7-4a3e-b077-95cc5d77be31))
 
 - Таблица **film** содержит основную информацию о фильмах;
 - Таблица **rating** содержит ID и названия MPA-рейтингов;
+
 - Таблица **genre** содежрит ID и названия жанров;
 - Таблица **film_genre** содержит ID фильма и ID соответствующих ему жанров;
 - Таблица **like** содержит информацию о ID пользователя и ID фильма, который пользователь лайкнул;
