@@ -1,4 +1,4 @@
-![ER-диаграмма приложения Filmorate]([https://github.com/DanielDaze/java-filmorate/assets/154620484/042957ec-6de8-4946-8ca8-f0212490b3c3](https://github.com/DanielDaze/java-filmorate/assets/154620484/aae84cb9-10b7-4a3e-b077-95cc5d77be31))
+![Filmorate](https://github.com/DanielDaze/java-filmorate/assets/154620484/c012e185-f8b2-4987-ae53-7698450dcff0)
 
 - Таблица **film** содержит основную информацию о фильмах;
 - Таблица **rating** содержит ID и названия MPA-рейтингов;
