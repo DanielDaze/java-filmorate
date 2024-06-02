@@ -34,6 +34,7 @@ public class  UserDbStorage implements UserStorage {
         this.friendStatusRowMapper = friendStatusRowMapper;
     }
 
+    @Override
     public Collection<User> findAll() {
         Collection<User> users = jdbc.query(FIND_ALL_QUERY, userRowMapper);
         Collection<User> usersWithFriends = users.stream().peek(user -> user.setFriends(new HashSet<>(findFriends(user.getId()).stream().map(User::getId).toList()))).toList();
@@ -41,6 +42,7 @@ public class  UserDbStorage implements UserStorage {
         return usersWithFriends;
     }
 
+    @Override
     public User find(long id) {
         try {
             User result = jdbc.queryForObject(FIND_BY_ID_QUERY, userRowMapper, id);
@@ -54,6 +56,7 @@ public class  UserDbStorage implements UserStorage {
         }
     }
 
+    @Override
     public User add(User user) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbc)
                 .withTableName("users")
@@ -63,10 +66,12 @@ public class  UserDbStorage implements UserStorage {
             log.info("Новый пользователь с id {} сохранен", id);
             return find(id);
         } else {
+            log.error("Произошла ошибка на стороне сервера при попытке сохранить пользователя");
             throw new InternalErrorException("Не удалось сохранить данные");
         }
     }
 
+    @Override
     public User update(User user) {
         try {
             find(user.getId());
@@ -83,6 +88,7 @@ public class  UserDbStorage implements UserStorage {
         }
     }
 
+    @Override
     public User addFriend(long id, long friendId) {
         try {
             find(id);
@@ -96,6 +102,7 @@ public class  UserDbStorage implements UserStorage {
         }
     }
 
+    @Override
     public User deleteFriend(long id, long friendId) {
         try {
             find(id);
@@ -109,6 +116,7 @@ public class  UserDbStorage implements UserStorage {
         }
     }
 
+    @Override
     public Collection<User> findFriends(long id) {
         try {
             jdbc.queryForObject(FIND_BY_ID_QUERY, userRowMapper, id);
@@ -124,6 +132,7 @@ public class  UserDbStorage implements UserStorage {
         }
     }
 
+    @Override
     public Collection<User> findMutuals(long id, long otherId) {
         List<FriendStatus> userFriendsIds = jdbc.query(FIND_FRIENDS_QUERY, friendStatusRowMapper, id);
         List<FriendStatus> otherFriendsIds = jdbc.query(FIND_FRIENDS_QUERY, friendStatusRowMapper, otherId);
