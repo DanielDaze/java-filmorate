@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.InternalErrorException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.WrongArgumentException;
 import ru.yandex.practicum.filmorate.model.film.Film;
 import ru.yandex.practicum.filmorate.model.film.Genre;
 import ru.yandex.practicum.filmorate.model.film.Like;
@@ -78,8 +79,19 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film add(Film film) {
         try {
+            jdbc.queryForObject("SELECT * FROM RATING WHERE RATING_ID = ?", ratingRowMapper, film.getMpa().getId());
+
+            Set<Genre> genres = film.getGenres();
+            for (Genre genre : genres) {
+                jdbc.queryForObject("SELECT * FROM GENRE WHERE GENRE.GENRE_ID = ?", genreRowMapper, genre.getId());
+            }
+        } catch (EmptyResultDataAccessException e) {
+            log.info("Рейтинга с id {} еще нет", film.getMpa().getId());
+            throw new WrongArgumentException("Рейтинга с таким id еще нет");
+        }
+
+        try {
             SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbc).withTableName("film").usingGeneratedKeyColumns("film_id");
-            ratingService.find(film.getMpa().getId());
             long id = simpleJdbcInsert.executeAndReturnKey(film.toMap()).longValue();
 
             SimpleJdbcInsert insertGenres = new SimpleJdbcInsert(jdbc).withTableName("film_genre");
