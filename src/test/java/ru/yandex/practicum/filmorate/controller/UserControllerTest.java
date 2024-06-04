@@ -20,8 +20,6 @@ import org.springframework.http.ResponseEntity;
 import ru.yandex.practicum.filmorate.model.user.User;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -32,20 +30,12 @@ class UserControllerTest {
     @Autowired
     private TestRestTemplate rest;
 
-    Gson gson = new GsonBuilder()
-            .registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter())
-            .create();
-    static final URI URL;
     @LocalServerPort
     private int port;
 
-    static {
-        try {
-            URL = new URI("http://localhost:8080/users");
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter())
+            .create();
 
     @Test
     void getPostAndPutTest() {
