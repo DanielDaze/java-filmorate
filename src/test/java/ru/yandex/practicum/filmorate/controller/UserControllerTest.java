@@ -3,48 +3,41 @@ package ru.yandex.practicum.filmorate.controller;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
-import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import ru.yandex.practicum.filmorate.model.user.User;
-import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 
-@AutoConfigureMockMvc
-@ContextConfiguration(classes = {UserControllerTest.class, UserController.class, UserService.class, UserStorage.class, InMemoryUserStorage.class})
-@WebMvcTest(controllers = UserController.class)
-@Import(UserController.class)
-@ExtendWith(SpringExtension.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureTestDatabase
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 class UserControllerTest {
     @Autowired
-    private MockMvc mockMvc;
+    private TestRestTemplate rest;
+
     Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter())
             .create();
-    Type userListType = new TypeToken<ArrayList<User>>(){}.getType();
     static final URI URL;
+    @LocalServerPort
+    private int port;
 
     static {
         try {
@@ -55,7 +48,7 @@ class UserControllerTest {
     }
 
     @Test
-    void getPostAndPutTest() throws Exception {
+    void getPostAndPutTest() {
         User expectedUser = User.builder()
                 .id(1)
                 .name("name")
@@ -63,15 +56,17 @@ class UserControllerTest {
                 .login("login")
                 .birthday(LocalDate.of(1999, 8, 8))
                 .build();
-        String postBody = gson.toJson(expectedUser);
-        mockMvc.perform(MockMvcRequestBuilders.post(URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(postBody))
-                .andReturn();
 
-        MvcResult getResult = mockMvc.perform(MockMvcRequestBuilders.get(URL)).andReturn();
-        ArrayList<User> users = gson.fromJson(getResult.getResponse().getContentAsString(), userListType);
-        Assertions.assertEquals(expectedUser, users.getFirst());
+        User postedUser = User.builder()
+                .name("name")
+                .email("name@yandex.ru")
+                .login("login")
+                .birthday(LocalDate.of(1999, 8, 8))
+                .build();
+
+        ResponseEntity<String> response = rest.postForEntity("http://localhost:" + port + "/users", new HttpEntity<>(postedUser), String.class);
+
+        Assertions.assertEquals(expectedUser, gson.fromJson(response.getBody(), User.class));
 
         User expectedUpdatedUser = User.builder()
                 .name("upd_name")
@@ -80,89 +75,61 @@ class UserControllerTest {
                 .login("newLogin")
                 .birthday(LocalDate.of(2000, 1, 1))
                 .build();
-        String updatedBody = gson.toJson(expectedUpdatedUser);
-        MvcResult putResult = mockMvc.perform(MockMvcRequestBuilders.put(URL)
-                 .contentType(MediaType.APPLICATION_JSON)
-                 .content(updatedBody))
-                 .andReturn();
-        User updatedUser = gson.fromJson(putResult.getResponse().getContentAsString(), User.class);
-        Assertions.assertEquals(expectedUpdatedUser, updatedUser);
+
+        ResponseEntity<String> updateResponse = rest.exchange("http://localhost:" + port + "/users", HttpMethod.PUT, new HttpEntity<>(expectedUpdatedUser), String.class);
+
+        Assertions.assertEquals(expectedUpdatedUser, gson.fromJson(updateResponse.getBody(), User.class));
     }
 
     @Test
-    void wrongEmailTest() throws Exception {
+    void wrongEmailTest() {
         User user = User.builder()
                 .name("name")
                 .email("yandex.ru")
                 .login("login")
                 .birthday(LocalDate.of(1999, 8, 8))
                 .build();
-        String postBody = gson.toJson(user);
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders
-                        .post(URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(postBody))
-                .andReturn();
-        Assertions.assertEquals(400, result.getResponse().getStatus());
+        ResponseEntity<String> response = rest.postForEntity("http://localhost:" + port + "/users", new HttpEntity<>(user), String.class);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 
         User userTwo = User.builder()
                 .name("name")
                 .login("login")
                 .birthday(LocalDate.of(1999, 8, 8))
                 .build();
-        String postBodyTwo = gson.toJson(userTwo);
-        MvcResult resultTwo = mockMvc.perform(MockMvcRequestBuilders
-                        .post(URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(postBody))
-                .andReturn();
-        Assertions.assertEquals(400, resultTwo.getResponse().getStatus());
+        ResponseEntity<String> responseTwo = rest.postForEntity("http://localhost:" + port + "/users", new HttpEntity<>(userTwo), String.class);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, responseTwo.getStatusCode());
     }
 
     @Test
-    void wrongLoginTest() throws Exception {
+    void wrongLoginTest() {
         User user = User.builder()
                 .name("name")
                 .email("name@yandex.ru")
                 .login("log in")
                 .birthday(LocalDate.of(1999, 8, 8))
                 .build();
-        String postBody = gson.toJson(user);
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders
-                        .post(URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(postBody))
-                .andReturn();
-        Assertions.assertEquals(400, result.getResponse().getStatus());
+        ResponseEntity<String> response = rest.postForEntity("http://localhost:" + port + "/users", new HttpEntity<>(user), String.class);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 
         User userTwo = User.builder()
                 .name("name")
                 .birthday(LocalDate.of(1999, 8, 8))
                 .build();
-        String postBodyTwo = gson.toJson(userTwo);
-        MvcResult resultTwo = mockMvc.perform(MockMvcRequestBuilders
-                        .post(URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(postBodyTwo))
-                .andReturn();
-        Assertions.assertEquals(400, resultTwo.getResponse().getStatus());
+        ResponseEntity<String> responseTwo = rest.postForEntity("http://localhost:" + port + "/users", new HttpEntity<>(userTwo), String.class);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, responseTwo.getStatusCode());
     }
 
     @Test
-    void wrongBirthdayTest() throws Exception {
+    void wrongBirthdayTest() {
         User user = User.builder()
                 .name("name")
                 .email("name@yandex.ru")
                 .login("login")
                 .birthday(LocalDate.of(2300, 8, 8))
                 .build();
-        String postBody = gson.toJson(user);
-        MvcResult result =  mockMvc.perform(MockMvcRequestBuilders
-                        .post(URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(postBody))
-                .andReturn();
-        Assertions.assertEquals(400, result.getResponse().getStatus());
+        ResponseEntity<String> response = rest.postForEntity("http://localhost:" + port + "/users", new HttpEntity<>(user), String.class);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     private static class LocalDateTypeAdapter extends TypeAdapter<LocalDate> {
