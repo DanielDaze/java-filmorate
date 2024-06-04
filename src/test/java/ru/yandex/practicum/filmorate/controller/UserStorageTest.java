@@ -28,7 +28,7 @@ public class UserStorageTest {
             .birthday(LocalDate.of(1999, 12, 21)).build();
 
         User expectedUser = User.builder()
-                .id(1)
+                .id(5)
                 .name("name")
                 .login("login")
                 .email("login@yandex.ru")
@@ -58,7 +58,7 @@ public class UserStorageTest {
                 .login("rnd_login")
                 .email("rnd@yandex.ru")
                 .birthday(LocalDate.of(1938, 10, 19)).build());
-        Assertions.assertEquals(2, userStorage.findAll().size());
+        Assertions.assertEquals(6, userStorage.findAll().size());
     }
 
     @Test
