@@ -13,7 +13,6 @@ import ru.yandex.practicum.filmorate.model.film.Film;
 import ru.yandex.practicum.filmorate.model.film.Genre;
 import ru.yandex.practicum.filmorate.model.film.Like;
 import ru.yandex.practicum.filmorate.service.GenreService;
-import ru.yandex.practicum.filmorate.service.RatingService;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.mappers.FilmRowMapper;
 import ru.yandex.practicum.filmorate.storage.mappers.GenreRowMapper;
@@ -24,20 +23,18 @@ import java.util.*;
 @Repository("filmDbStorage")
 @Slf4j
 public class FilmDbStorage implements FilmStorage {
-    JdbcTemplate jdbc;
-    UserService userService;
-    GenreService genreService;
-    RatingService ratingService;
-    FilmRowMapper filmRowMapper;
-    RatingRowMapper ratingRowMapper;
-    GenreRowMapper genreRowMapper;
+    private final JdbcTemplate jdbc;
+    private final UserService userService;
+    private final GenreService genreService;
+    private final FilmRowMapper filmRowMapper;
+    private final RatingRowMapper ratingRowMapper;
+    private final GenreRowMapper genreRowMapper;
 
     @Autowired
-    public FilmDbStorage(JdbcTemplate jdbc, UserService userService, GenreService genreService, RatingService ratingService, FilmRowMapper filmRowMapper, RatingRowMapper ratingRowMapper, GenreRowMapper genreRowMapper) {
+    public FilmDbStorage(JdbcTemplate jdbc, UserService userService, GenreService genreService, FilmRowMapper filmRowMapper, RatingRowMapper ratingRowMapper, GenreRowMapper genreRowMapper) {
         this.jdbc = jdbc;
         this.userService = userService;
         this.genreService = genreService;
-        this.ratingService = ratingService;
         this.filmRowMapper = filmRowMapper;
         this.ratingRowMapper = ratingRowMapper;
         this.genreRowMapper = genreRowMapper;
@@ -59,7 +56,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Film find(long id) {
+    public Film findById(long id) {
         try {
             Film film = jdbc.queryForObject("SELECT * FROM FILM WHERE FILM_ID = ?", filmRowMapper, id);
             film.setMpa(jdbc.queryForObject("SELECT * FROM RATING WHERE RATING_ID = ?",
@@ -97,7 +94,7 @@ public class FilmDbStorage implements FilmStorage {
             SimpleJdbcInsert insertGenres = new SimpleJdbcInsert(jdbc).withTableName("film_genre");
             Set<Genre> genres = film.getGenres();
             for (Genre genre : genres) {
-                genreService.find(genre.getId());
+                genreService.findById(genre.getId());
                 Map<String, Object> genreMap = new HashMap<>();
                 genreMap.put("film_id", id);
                 genreMap.put("genre_id", genre.getId());
@@ -106,7 +103,7 @@ public class FilmDbStorage implements FilmStorage {
 
             if (id != 0) {
                 log.info("Новый фильм с id {} сохранен", id);
-                return find(id);
+                return findById(id);
             } else {
                 log.error("Произошла ошибка при попытке сохранить фильм");
                 throw new InternalErrorException("Не удалось сохранить данные");
@@ -119,14 +116,14 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film update(Film film) {
         try {
-            find(film.getId());
+            findById(film.getId());
             int rowsUpdated = jdbc.update("UPDATE FILM SET DURATION = ?, RELEASE_DATE = ?, DESCRIPTION = ?, NAME = ?, RATING_ID = ? WHERE FILM_ID = ?", film.getDuration(), film.getReleaseDate(), film.getDescription(), film.getName(), film.getMpa().getId(), film.getId());
             if (rowsUpdated == 0) {
                 throw new InternalErrorException("Не удалось обновить данные");
             }
 
             log.info("Информация о фильме с id {} обновлена", film.getId());
-            return find(film.getId());
+            return findById(film.getId());
         } catch (EmptyResultDataAccessException e) {
             log.error("Фильма с id {} еще нет", film.getId());
             throw new NotFoundException("Ошибка: Фильм с id" + film.getId() + "не найден");
@@ -136,14 +133,14 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film like(long id, long userId) {
         try {
-            find(id);
-            userService.find(userId);
+            findById(id);
+            userService.findById(userId);
             SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbc).withTableName("likes");
             long updated = simpleJdbcInsert.execute(Like.builder().filmId(id).userId(userId).build().toMap());
 
             if (updated != 0) {
                 log.info("Пользователь с id {} лайкнул фильм с id {}", userId, id);
-                return find(id);
+                return findById(id);
             } else {
                 log.error("Произошла ошибка при попытке пользователя с id {} лайкнуть фильм с id {}", userId, id);
                 throw new InternalErrorException("Не удалось лайкнуть фильм");
@@ -157,11 +154,11 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film removeLike(long id, long userId) {
         try {
-            find(id);
-            userService.find(userId);
+            findById(id);
+            userService.findById(userId);
             jdbc.update("DELETE FROM LIKES WHERE FILM_ID = ? AND USER_ID = ?", id, userId);
             log.info("Пользователь с id {} удалил лайк с фильма с id {}", userId, id);
-            return find(id);
+            return findById(id);
         } catch (EmptyResultDataAccessException e) {
             log.error("Ошибка: не удалось удалить данные");
             throw new NotFoundException("Ошибка: не удалось удалить данные");

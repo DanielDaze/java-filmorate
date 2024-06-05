@@ -24,7 +24,7 @@ public class FilmService {
     }
 
     public Film find(long id) {
-        return storage.find(id);
+        return storage.findById(id);
     }
 
     public Film add(Film film) {

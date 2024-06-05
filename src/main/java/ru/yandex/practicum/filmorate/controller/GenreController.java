@@ -27,7 +27,7 @@ public class GenreController {
     }
 
     @GetMapping("/{id}")
-    public Genre find(@PathVariable @Positive long id) {
-        return service.find(id);
+    public Genre findById(@PathVariable @Positive long id) {
+        return service.findById(id);
     }
 }

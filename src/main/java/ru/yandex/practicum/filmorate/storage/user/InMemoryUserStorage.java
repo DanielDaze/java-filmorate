@@ -24,7 +24,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User find(long id) {
+    public User findById(long id) {
         if (users.containsKey(id)) {
             log.info("Пользователь с id {} найден", id);
             return users.get(id);
@@ -80,8 +80,8 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User addFriend(long id, long friendId) {
-        User user = find(id);
-        User friend = find(friendId);
+        User user = findById(id);
+        User friend = findById(friendId);
         user.getFriends().add(friendId);
         friend.getFriends().add(id);
 
@@ -92,8 +92,8 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     public User deleteFriend(long id, long friendId) {
-        User user = find(id);
-        User friend = find(friendId);
+        User user = findById(id);
+        User friend = findById(friendId);
         user.getFriends().remove(friendId);
         friend.getFriends().remove(id);
 
@@ -104,7 +104,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     public Collection<User> findFriends(long id) {
-        User neededUser = find(id);
+        User neededUser = findById(id);
         Collection<User> users = findAll();
         Collection<User> friends = users.stream().filter(curUser -> curUser.getFriends().contains(id)).toList();
         log.info("Выполняется возврат списка друзей пользователя {}", neededUser.getLogin());
@@ -113,8 +113,8 @@ public class InMemoryUserStorage implements UserStorage {
 
     public Collection<User> findMutuals(long id, long otherId) {
         Collection<User> users = findAll();
-        User user = find(id);
-        User otherUser = find(otherId);
+        User user = findById(id);
+        User otherUser = findById(otherId);
         List<Long> mutualIds = user.getFriends().stream().filter(otherUser.getFriends()::contains).toList();
         Collection<User> mutualFriends = users.stream().filter(curUser -> mutualIds.contains(curUser.getId())).toList();
         log.info("Выполняется возврат общих друзей пользователей {} и {}", user.getLogin(), otherUser.getLogin());

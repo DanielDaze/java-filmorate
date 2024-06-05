@@ -26,7 +26,7 @@ public class GenreDbStorage {
         return jdbc.query("SELECT * FROM GENRE", genreRowMapper);
     }
 
-    public Genre find(long id) {
+    public Genre findById(long id) {
         try {
             Genre genre = jdbc.queryForObject("SELECT * FROM GENRE WHERE GENRE.GENRE_ID = ?", genreRowMapper, id);
             log.info("Выполняется возврат Жанра с id {}", id);

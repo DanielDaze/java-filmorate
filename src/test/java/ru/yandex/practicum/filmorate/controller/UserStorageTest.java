@@ -76,7 +76,7 @@ public class UserStorageTest {
                 .birthday(LocalDate.of(1998, 11, 20)).build());
 
         userStorage.addFriend(3, 4);
-        Assertions.assertEquals(1, userStorage.find(3).getFriends().size());
+        Assertions.assertEquals(1, userStorage.findById(3).getFriends().size());
     }
 
     @Test

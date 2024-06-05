@@ -17,7 +17,7 @@ import java.util.Map;
 @Component("inMemoryFilmStorage")
 @Slf4j
 public class InMemoryFilmStorage implements FilmStorage {
-    UserService userService;
+    private final UserService userService;
 
     private int idCount = 0;
     private static final String INPUT_ERROR = "User Input Error";
@@ -35,7 +35,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film find(long id) {
+    public Film findById(long id) {
         if (!films.containsKey(id)) {
             String message = "Фильм c id" + id + " не найден";
             log.info("{}: {}", INPUT_ERROR, message);
@@ -91,8 +91,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     public Film like(long id, long userId) {
-        Film film = find(id);
-        User user = userService.find(userId);
+        Film film = findById(id);
+        User user = userService.findById(userId);
         film.getLikes().add(userId);
         update(film);
         log.info("Пользователь {} лайкнул фильм {}", user.getLogin(), film.getName());
@@ -100,7 +100,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     public Film removeLike(long id, long userId) {
-        Film film = find(id);
+        Film film = findById(id);
         if (!film.getLikes().contains(userId)) {
             log.error("Пользователь с id {} хотел убрать лайк с фильма, который еще не был оценен", userId);
             throw new NotFoundException("Пользователь с id " + userId + " не лайкал этот фильм");

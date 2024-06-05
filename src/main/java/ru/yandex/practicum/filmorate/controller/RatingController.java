@@ -27,7 +27,7 @@ public class RatingController {
     }
 
     @GetMapping("/{id}")
-    public Rating find(@PathVariable @Positive long id) {
-     return service.find(id);
+    public Rating findById(@PathVariable @Positive long id) {
+     return service.findById(id);
     }
 }

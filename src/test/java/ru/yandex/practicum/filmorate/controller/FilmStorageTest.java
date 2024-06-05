@@ -27,8 +27,6 @@ public class FilmStorageTest {
 
     @Autowired
     private UserDbStorage userStorage;
-    @Autowired
-    private UserDbStorage userDbStorage;
 
     @Test
     @Order(1)
@@ -96,14 +94,14 @@ public class FilmStorageTest {
         userStorage.add(user);
 
         filmStorage.like(1, 1);
-        Assertions.assertEquals(1, filmStorage.find(1).getLikes().size());
+        Assertions.assertEquals(1, filmStorage.findById(1).getLikes().size());
     }
 
     @Test
     @Order(5)
     void removeLikeTest() {
         filmStorage.removeLike(1, 1);
-        Assertions.assertEquals(0, filmStorage.find(1).getLikes().size());
+        Assertions.assertEquals(0, filmStorage.findById(1).getLikes().size());
     }
 
     @Test

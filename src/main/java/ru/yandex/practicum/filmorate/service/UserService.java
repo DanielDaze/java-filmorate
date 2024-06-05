@@ -23,8 +23,8 @@ public class UserService {
         return storage.findAll();
     }
 
-    public User find(long id) {
-        return storage.find(id);
+    public User findById(long id) {
+        return storage.findById(id);
     }
 
     public User add(User user) {

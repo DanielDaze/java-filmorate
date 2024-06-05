@@ -20,7 +20,7 @@ public class GenreService {
         return storage.findAll();
     }
 
-    public Genre find(long id) {
-        return storage.find(id);
+    public Genre findById(long id) {
+        return storage.findById(id);
     }
 }

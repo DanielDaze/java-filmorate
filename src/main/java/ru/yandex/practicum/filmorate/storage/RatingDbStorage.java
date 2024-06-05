@@ -26,7 +26,7 @@ public class RatingDbStorage {
         return jdbc.query("SELECT * FROM RATING", ratingRowMapper);
     }
 
-    public Rating find(long id) {
+    public Rating findById(long id) {
         try {
             Rating rating = jdbc.queryForObject("SELECT * FROM RATING WHERE RATING_ID = ?", ratingRowMapper, id);
             log.info("Выполняется возврат рейтинга с id {} из БД", id);

@@ -20,8 +20,8 @@ public class RatingService {
         return storage.findAll();
     }
 
-    public Rating find(long id) {
-        return storage.find(id);
+    public Rating findById(long id) {
+        return storage.findById(id);
     }
 
 }
