@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.WrongArgumentException;
 
 import java.util.Map;
 
@@ -33,5 +34,12 @@ public class ErrorHandler {
     public Map<String, String> handleThrowable(Throwable e) {
         log.error("Во время выполнении команды пользователя произошла ошибка на стороне сервера");
         return Map.of("Ошибка", "Что-то пошло не так");
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleWrongArgument(WrongArgumentException e) {
+        log.error("Пользователь неверно ввел данные");
+        return Map.of("Ошибка", "Вы неверно ввели данные при составлении запроса");
     }
 }

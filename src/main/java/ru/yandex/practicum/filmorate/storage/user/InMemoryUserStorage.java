@@ -7,9 +7,10 @@ import ru.yandex.practicum.filmorate.model.user.User;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-@Component
+@Component("inMemoryUserStorage")
 @Slf4j
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Long, User> users = new HashMap<>();
@@ -23,7 +24,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User find(long id) {
+    public User findById(long id) {
         if (users.containsKey(id)) {
             log.info("Пользователь с id {} найден", id);
             return users.get(id);
@@ -75,5 +76,48 @@ public class InMemoryUserStorage implements UserStorage {
         users.put(user.getId(), user);
         log.info("Пользователь с id {} обновлен: {}", user.getId(), user);
         return user;
+    }
+
+    @Override
+    public User addFriend(long id, long friendId) {
+        User user = findById(id);
+        User friend = findById(friendId);
+        user.getFriends().add(friendId);
+        friend.getFriends().add(id);
+
+        update(user);
+        update(friend);
+        log.info("Пользователь {} добавил в друзья пользователя {}", user.getLogin(), friend.getLogin());
+        return user;
+    }
+
+    public User deleteFriend(long id, long friendId) {
+        User user = findById(id);
+        User friend = findById(friendId);
+        user.getFriends().remove(friendId);
+        friend.getFriends().remove(id);
+
+        update(user);
+        update(friend);
+        log.info("Пользователь {} удалил из друзей пользователя {}", user.getLogin(), friend.getLogin());
+        return user;
+    }
+
+    public Collection<User> findFriends(long id) {
+        User neededUser = findById(id);
+        Collection<User> users = findAll();
+        Collection<User> friends = users.stream().filter(curUser -> curUser.getFriends().contains(id)).toList();
+        log.info("Выполняется возврат списка друзей пользователя {}", neededUser.getLogin());
+        return friends;
+    }
+
+    public Collection<User> findMutuals(long id, long otherId) {
+        Collection<User> users = findAll();
+        User user = findById(id);
+        User otherUser = findById(otherId);
+        List<Long> mutualIds = user.getFriends().stream().filter(otherUser.getFriends()::contains).toList();
+        Collection<User> mutualFriends = users.stream().filter(curUser -> mutualIds.contains(curUser.getId())).toList();
+        log.info("Выполняется возврат общих друзей пользователей {} и {}", user.getLogin(), otherUser.getLogin());
+        return mutualFriends;
     }
 }

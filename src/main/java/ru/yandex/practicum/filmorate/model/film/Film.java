@@ -5,12 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
-/**
- * Film.
- */
 @Data
 public class Film {
     private long id;
@@ -28,14 +24,29 @@ public class Film {
     @Positive
     private int duration;
 
+    private Rating mpa;
+
     private Set<Long> likes = new HashSet<>();
 
+    private Set<Genre> genres = new TreeSet<>();
+
     @Builder
-    public Film(long id, int duration, LocalDate releaseDate, String description, String name) {
+    public Film(long id, int duration, LocalDate releaseDate, String description, String name, Rating mpa) {
         this.id = id;
         this.duration = duration;
         this.releaseDate = releaseDate;
         this.description = description;
         this.name = name;
+        this.mpa = mpa;
+    }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> values = new HashMap<>();
+        values.put("duration", duration);
+        values.put("name", name);
+        values.put("description", description);
+        values.put("release_date", releaseDate);
+        values.put("rating_id", mpa.getId());
+        return values;
     }
 }

@@ -25,7 +25,7 @@ public class FilmController {
     }
 
     @GetMapping("/{id}")
-    public Film find(@Positive @PathVariable long id) {
+    public Film findById(@Positive @PathVariable long id) {
         return service.find(id);
     }
 
